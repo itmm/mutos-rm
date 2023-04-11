@@ -15,7 +15,7 @@ run.img: boot.bin splash.bin interpreter.bin
 	./padded-cat.sh $(IMAGESIZE) $^ >$@
 	
 %.bin: %.asm
-	nasm -f bin $^ -o $@
+	nasm -f bin $^ -o $@ -l $(@:.bin=.lst)
 
 clean:
 	rm -f $(BINs) run.img
