@@ -37,7 +37,7 @@ video_mode_ptr equ 0x0e
 	mov es,ax
 video_loop:
 	cmp (ax),0xffff
-	je no_vesa
+	je no_mode
 	push ax
 	mov cx,(ax)
 	mov ax,0x4f01
@@ -64,6 +64,25 @@ next_entry:
 ; * error message and end, if not supported
 
 no_vesa:
+	mov bx,no_vesa_msg
+	jmp error_msg_loop
+
+no_mode:
+	mov bx,no_mode_msg
+
+error_msg_loop:
+	mov ax,(bx)
+	cmp al,0x00
+	je end_of_error_msg
+	push bx
+	mov ah,0x0e
+	mov bx,0x000f
+	int 0x10
+	pop bx
+	inc bx
+	jmp error_msg_loop
+
+end_of_error_msg:
 	jmp $
 
 ; * switch to mode
@@ -83,6 +102,14 @@ found_mode:
 ;
 ; * load interpreter into RAM
 ; * jump into interpreter
+
+	jmp $
+
+no_vesa_msg:
+	db "no vesa card found", 0x00
+
+no_mode_msg:
+	db "found no matching graphic mode", 0x00
 
 	times 510 - ($ - $$) db 0
 	db 0x55, 0xaa
