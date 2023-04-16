@@ -10,14 +10,8 @@ mode_info_block equ 0x1200
 	xor ax,ax
 	mov es,ax
 	mov di,vbe_info_block
-	mov ax,di
-	mov (ax),'V'
-	inc ax
-	mov (ax),'B'
-	inc ax
-	mov (ax),'E'
-	inc ax
-	mov (ax),'2'
+	mov word [di + 0],('V' + 'B' * 256)
+	mov word [di + 2],('E' + '2' * 256)
 	mov ax,0x4f00
 	int 0x10
 	cmp ax,0x004f
@@ -30,26 +24,28 @@ capabilities equ 0x0a
 video_mode_ptr equ 0x0e
 
 	mov bx,vbe_info_block+video_mode_ptr
-	mov ax,(bx)
+	mov ax,[bx]
 	inc bx
 	inc bx
-	mov bx,(bx)
+	mov bx,[bx]
 	mov es,ax
+	mov ax,bx
 video_loop:
-	cmp (ax),0xffff
+	mov bx,ax
+	cmp word [bx],0xffff
 	je no_mode
 	push ax
-	mov cx,(ax)
+	mov cx,[bx]
 	mov ax,0x4f01
 	mov di,mode_info_block
 	int 0x10
-	mov ax,(mode_info_block+0x12)
+	mov ax,[mode_info_block+0x12]
 	cmp ax,1024
 	jne next_entry
-	mov ax,(mode_info_block+0x14)
+	mov ax,[mode_info_block+0x14]
 	cmp ax,768
 	jne next_entry
-	mov ax,(mode_info_block+0x19)
+	mov al,[mode_info_block+0x19]
 	cmp al,0xff
 	jne next_entry
 	pop ax
@@ -71,9 +67,9 @@ no_mode:
 	mov bx,no_mode_msg
 
 error_msg_loop:
-	mov ax,(bx)
-	cmp al,0x00
-	je end_of_error_msg
+	mov al,[bx]
+	or al,al
+	jz end_of_error_msg
 	push bx
 	mov ah,0x0e
 	mov bx,0x000f
@@ -92,6 +88,7 @@ found_mode:
 	mov ax,0x4f02
 	int 0x10
 
+	jmp no_mode
 ; load boot image
 ;
 ; * set all colors to black
@@ -103,7 +100,7 @@ found_mode:
 ; * load interpreter into RAM
 ; * jump into interpreter
 
-	jmp $
+	jmp no_vesa
 
 no_vesa_msg:
 	db "no vesa card found", 0x00
