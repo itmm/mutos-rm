@@ -81,6 +81,15 @@ error_msg_loop:
 end_of_error_msg:
 	jmp $
 
+print_num:
+    push ax
+    mov cx,10
+    div cx
+    jz .no_recur
+    jsr print_num
+.no_recur:
+    mov ax,cx
+    
 ; * switch to mode
 
 found_mode:
