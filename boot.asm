@@ -70,10 +70,14 @@ next_entry:
 
 no_vesa:
 	mov bx,no_vesa_msg
-	jmp print_str
+	call print_str
+    jmp $
 
 no_mode:
 	mov bx,no_mode_msg
+	call print_str
+	jmp $
+
 print_str:
     push ax
     push bx
