@@ -10,4 +10,11 @@
     </option>
   </component>
   <component name="MakefileWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (Backend)" project-jdk-type="Python SDK" />
+  <component name="SSCMIVcsConfiguration">
+    <option name="AutoAdd" value="false" />
+    <option name="AutoRemove" value="false" />
+    <option name="ModifiedTracking" value="false" />
+    <option name="ConnectOnStartup" value="false" />
+  </component>
 </project>

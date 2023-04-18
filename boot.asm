@@ -39,13 +39,22 @@ video_loop:
 	mov ax,0x4f01
 	mov di,mode_info_block
 	int 0x10
+	mov ax,'\n'
+	call print_ch
 	mov ax,[mode_info_block+0x12]
+	call print_num
 	cmp ax,1024
 	jne next_entry
+	mov ax,'*'
+	call print_ch
 	mov ax,[mode_info_block+0x14]
+	call print_num
 	cmp ax,768
 	jne next_entry
+	mov ax,':'
+	call print_ch
 	mov al,[mode_info_block+0x19]
+	call print_num
 	cmp al,0xff
 	jne next_entry
 	pop ax
@@ -61,43 +70,63 @@ next_entry:
 
 no_vesa:
 	mov bx,no_vesa_msg
-	jmp error_msg_loop
+	jmp print_str
 
 no_mode:
 	mov bx,no_mode_msg
+print_str:
+    push ax
+    push bx
+.loop:
+    mov al,[bx]
+    or al,al
+    jz .end
+    call print_ch
+    inc bx
+    jmp .loop
+.end:
+    pop bx
+    pop ax
+    ret
 
-error_msg_loop:
-	mov al,[bx]
-	or al,al
-	jz end_of_error_msg
-	push bx
-	mov ah,0x0e
-	mov bx,0x000f
-	int 0x10
-	pop bx
-	inc bx
-	jmp error_msg_loop
-
-end_of_error_msg:
-	jmp $
+print_ch:
+    push ax
+    push bx
+    mov ah,0x0e
+    mov bx,0x000f
+    int 0x10
+    pop bx
+    pop ax
+    ret
 
 print_num:
     push ax
+    push cx
+    call .recur
+    pop cx
+    pop ax
+    ret
+
+.recur:
     mov cx,10
     div cx
     jz .no_recur
-    jsr print_num
+    push cx
+    call .recur
+    pop cx
 .no_recur:
     mov ax,cx
-    
+    add ax,'0'
+    jmp print_ch
+
 ; * switch to mode
 
 found_mode:
 	mov bx,(ax)
 	mov ax,0x4f02
 	int 0x10
-
 	jmp no_mode
+
 ; load boot image
 ;
 ; * set all colors to black

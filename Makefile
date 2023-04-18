@@ -1,10 +1,9 @@
 SRCs = $(wildcard *.asm)
 BINs = $(SRCs:.asm=.bin)
-FLOPPYs =$(SRCs:.asm=.img)
 
 IMAGESIZE=1474560
 
-.PHONY: all clean mds srcs
+.PHONY: all clean
 
 all: run.img
 
