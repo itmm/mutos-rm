@@ -12,7 +12,10 @@ payload.bin: boot.bin splash.bin interpreter.bin
 
 run.img: boot.bin splash.bin interpreter.bin
 	./padded-cat.sh $(IMAGESIZE) $^ >$@
-	
+
+%.asm: %.md
+	mdp $^
+
 %.bin: %.asm
 	nasm -f bin $^ -o $@ -l $(@:.bin=.lst)
 
