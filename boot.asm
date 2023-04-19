@@ -8,6 +8,7 @@ vbe_info_block equ 0x1000
 mode_info_block equ 0x1200
 
 	xor ax,ax
+	mov ds,ax
 	mov es,ax
 	mov di,vbe_info_block
 	mov word [di + 0],('V' + 'B' * 256)
@@ -23,14 +24,16 @@ oem_string_ptr equ 0x06
 capabilities equ 0x0a
 video_mode_ptr equ 0x0e
 
+; find the correct mode
+
 	mov bx,vbe_info_block+video_mode_ptr
 	mov ax,[bx]
 	inc bx
 	inc bx
 	mov bx,[bx]
-	mov es,ax
+	mov ds,ax
 	mov ax,bx
-video_loop:
+.loop:
 	mov bx,ax
 	cmp word [bx],0xffff
 	je no_mode
@@ -44,27 +47,27 @@ video_loop:
 	mov ax,[mode_info_block+0x12]
 	call print_num
 	cmp ax,1024
-	jne next_entry
+	jne .next_entry
 	mov ax,'*'
 	call print_ch
 	mov ax,[mode_info_block+0x14]
 	call print_num
 	cmp ax,768
-	jne next_entry
+	jne .next_entry
 	mov ax,':'
 	call print_ch
 	mov al,[mode_info_block+0x19]
 	call print_num
 	cmp al,0xff
-	jne next_entry
+	jne .next_entry
 	pop ax
 	jmp found_mode
 
-next_entry:
+.next_entry:
 	pop ax
 	inc ax
 	inc ax
-	jmp video_loop
+	jmp .loop
 	
 ; * error message and end, if not supported
 
